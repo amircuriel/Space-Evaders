@@ -5,9 +5,11 @@ using UnityEngine;
 public class PlayerFire : MonoBehaviour
 {
     [SerializeField]
-    private float intervalBetweenShots = 0.05f;
+    private float recoilStrengthPerBullet = 25f;
     [SerializeField]
-    private float rotationSpeed = 45f;
+    private float intervalBetweenShots = 0.12f;
+    [SerializeField]
+    private float rotationSpeed = 2000f;
 
     [System.Serializable]
     public struct Gun
@@ -19,23 +21,32 @@ public class PlayerFire : MonoBehaviour
     [SerializeField]
     private List<Gun> Guns;
 
-    private PlayerMovement playerMovement;
+    private Rigidbody2D myRigidbody;
 
     private float fireRateTimer = 0f;
     private int currentGun = 0;
+
     // Start is called before the first frame update
     void Start()
     {
-        playerMovement = GetComponent<PlayerMovement>();
+        myRigidbody = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (fireRateTimer > 0)
+        if (SessionManager.Instance.isGameRunning)
         {
-            fireRateTimer -= Time.deltaTime;
+            if (fireRateTimer > 0)
+            {
+                fireRateTimer -= Time.deltaTime;
+            }
         }
+        else
+        {
+            myRigidbody.velocity = Vector2.zero;
+        }
+        
     }
 
     public void Fire(Vector2 direction)
@@ -57,7 +68,7 @@ public class PlayerFire : MonoBehaviour
                 bullet.transform.rotation = nextGun.BarrelEnd.rotation;
                 bullet.SetActive(true);
             }
-            playerMovement.ApplyRecoil(direction);
+            ApplyRecoil(direction);
 
             fireRateTimer = intervalBetweenShots;
 
@@ -67,5 +78,12 @@ public class PlayerFire : MonoBehaviour
                 currentGun = 0;
             }
         }
+    }
+
+
+
+    public void ApplyRecoil(Vector2 direction)
+    {
+        myRigidbody.AddForce(-direction * recoilStrengthPerBullet * Time.fixedDeltaTime, ForceMode2D.Impulse);
     }
 }

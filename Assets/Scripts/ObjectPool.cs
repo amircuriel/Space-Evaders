@@ -9,13 +9,13 @@ public class ObjectPool : MonoBehaviour
     public int amountToPool;
 
 
-    void Start()
+    public virtual void Start()
     {
         pooledObjects = new List<GameObject>();
         GameObject tmp;
         for (int i = 0; i < amountToPool; i++)
         {
-            tmp = Instantiate(objectToPool, this.transform);
+            tmp = Instantiate(objectToPool, transform);
             tmp.SetActive(false);
             pooledObjects.Add(tmp);
         }
